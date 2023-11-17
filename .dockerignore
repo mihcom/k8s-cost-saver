@@ -1,0 +1,11 @@
+# Ignore everything
+*
+
+# Allow files and directories
+!src/**
+!Directory.Build.targets
+!Directory.Build.props
+
+# Ignore unnecessary files inside allowed directories
+**/bin/
+**/obj/

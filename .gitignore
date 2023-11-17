@@ -1,0 +1,10 @@
+bin/
+obj/
+.idea/
+.vs/
+.local-chromium
+log*.txt
+node_modules
+/data
+*.user
+Cache/

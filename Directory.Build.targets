@@ -1,0 +1,44 @@
+﻿<Project>
+
+    <!-- NuGet references for all test projects -->
+    <ItemGroup Condition="'$(IsUnitTestContainer)' == 'true'">
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.runner.visualstudio">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="NSubstitute"/>
+        <PackageReference Include="FluentAssertions"/>
+        <PackageReference Include="AutoFixture"/>
+        <PackageReference Include="AutoFixture.Xunit2"/>
+        <PackageReference Include="Serilog.Sinks.XUnit"/>
+    </ItemGroup>
+
+    <!-- If a project uses a NuGet package, those packages' versions will be the following: -->
+    <ItemGroup>
+        <!-- Test projects-->
+        <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.7.2"/>
+        <PackageReference Update="xunit" Version="2.5.0"/>
+        <PackageReference Update="xunit.runner.visualstudio" Version="2.5.0"/>
+        <PackageReference Update="coverlet.collector" Version="6.0.0"/>
+        <PackageReference Update="NSubstitute" Version="5.0.0"/>
+        <PackageReference Update="FluentAssertions" Version="6.12.0"/>
+        <PackageReference Update="AutoFixture" Version="4.18.0"/>
+        <PackageReference Update="AutoFixture.Xunit2" Version="4.18.0"/>
+        <PackageReference Update="Serilog.Sinks.XUnit" Version="3.0.5"/>
+
+        <!-- Any projects-->
+        <PackageReference Update="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0"/>
+        <PackageReference Update="Serilog.AspNetCore" Version="8.0.0"/>
+        <PackageReference Update="Serilog.Enrichers.Thread" Version="3.1.0"/>
+        <PackageReference Update="Serilog.Settings.Configuration" Version="8.0.0"/>
+        <PackageReference Update="Serilog.Sinks.Console" Version="5.0.0"/>
+        <PackageReference Update="KubeOps" Version="7.6.1" />
+    </ItemGroup>
+
+</Project>
