@@ -1,0 +1,27 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: costsavers.costsaver.leapwork
+spec:
+  group: costsaver.leapwork
+  names:
+    kind: CostSaver
+    listKind: CostSaverList
+    plural: costsavers
+    singular: costsaver
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          spec:
+            description: The cost saver specification.
+            properties:
+              namespaceLabel:
+                description: The namespace label to watch for.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true

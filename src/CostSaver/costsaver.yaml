@@ -1,0 +1,7 @@
+﻿apiVersion: costsaver.leapwork/v1
+kind: CostSaver
+metadata:
+  name: costsaver
+  namespace: costsaver
+spec:
+  namespaceLabel: delete-after
