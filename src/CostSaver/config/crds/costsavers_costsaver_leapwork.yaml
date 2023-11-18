@@ -15,13 +15,33 @@ spec:
     schema:
       openAPIV3Schema:
         properties:
+          status:
+            description: The cost saver status.
+            properties:
+              trackedNamespaces:
+                description: The tracked namespaces.
+                items:
+                  description: The tracked namespace details.
+                  properties:
+                    name:
+                      description: The name of the namespace.
+                      type: string
+                    expiresAt:
+                      description: The expiration date of the namespace.
+                      format: date-time
+                      type: string
+                  type: object
+                type: array
+            type: object
           spec:
             description: The cost saver specification.
             properties:
               namespaceLabel:
-                description: The namespace label to watch for.
+                description: The namespace label to track.
                 type: string
             type: object
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}

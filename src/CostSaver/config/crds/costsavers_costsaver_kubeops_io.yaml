@@ -16,13 +16,28 @@ spec:
       openAPIV3Schema:
         properties:
           status:
-            description: Status object for the entity.
-            properties: {}
+            description: The cost saver status.
+            properties:
+              trackedNamespaces:
+                description: The tracked namespaces.
+                items:
+                  description: The tracked namespace details.
+                  properties:
+                    name:
+                      description: The name of the namespace.
+                      type: string
+                    expiresAt:
+                      description: The expiration date of the namespace.
+                      format: date-time
+                      type: string
+                  type: object
+                type: array
             type: object
           spec:
-            description: Specification of the kubernetes object.
+            description: The cost saver specification.
             properties:
               namespaceLabel:
+                description: The namespace label to track.
                 type: string
             type: object
         type: object

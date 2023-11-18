@@ -4,4 +4,4 @@ metadata:
   name: costsaver
   namespace: costsaver
 spec:
-  namespaceLabel: delete-after
+  namespaceLabel: lifetime
