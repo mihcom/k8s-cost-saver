@@ -13,7 +13,7 @@ public class CostSaver : CustomKubernetesEntity<CostSaverSpec, CostSaverStatus>
 public class CostSaverSpec
 {
     [Description("The namespace label to track.")]
-    public string NamespaceLabel { get; set; } = null!;
+    public string NamespaceLabel { get; init; } = null!;
 }
 
 [Description("The cost saver status.")]
@@ -26,9 +26,9 @@ public class CostSaverStatus
     public class ExpiringNamespace
     {
         [Description("The name of the namespace.")]
-        public string Name { get; set; } = null!;
+        public required string Name { get; init; }
 
         [Description("The expiration date of the namespace.")]
-        public DateTime ExpiresAt { get; set; }
+        public DateTime ExpiresAt { get; init; }
     }
 }

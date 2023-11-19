@@ -1,13 +1,21 @@
-﻿using k8s.Models;
+﻿using System.Collections.Concurrent;
+using CostSaver.Extensions;
+using CostSaver.Infrastructure.Events;
+using k8s.Models;
 using KubeOps.KubernetesClient;
+using KubeOps.Operator.Events;
 
-namespace CostSaver.Services;
+namespace CostSaver.Infrastructure.Services;
 
-public class WorkerService(IKubernetesClient kubernetesClient, ILogger<WorkerService> logger) : IHostedService
+public class DetectExpiredWorkloadsService(IKubernetesClient kubernetesClient, IEventManager eventManager,
+    IMediator mediator, ILogger<DetectExpiredWorkloadsService> logger) : IHostedService
 {
     // Safety net to prevent accidental deletion of important namespaces
     private static readonly HashSet<string> ProtectedNamespaces =
         new() { "default", "ingress-nginx", "kube-node-lease", "kube-public", "kube-system", "logging" };
+
+    // Keep track of processed namespaces to prevent duplicate events
+    private static readonly ConcurrentBag<string> ProcessedNamespaces = new();
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -45,19 +53,19 @@ public class WorkerService(IKubernetesClient kubernetesClient, ILogger<WorkerSer
         logger.LogInformation("Checking cost saver {CostSaverName}", costSaver.Metadata.Name);
 
         var expiredNamespaces = namespaces
-                .Where(ns => ns.Metadata.CreationTimestamp.HasValue 
-                        && ns.Metadata.Labels.TryGetValue(costSaver.Spec.NamespaceLabel, out var labelValue)
-                        && !string.IsNullOrWhiteSpace(labelValue)
-                        && TimeSpan.TryParse(labelValue.Replace('-', ':'), out var expirationTime)
-                        && ns.Metadata.CreationTimestamp.Value.Add(expirationTime) < DateTime.UtcNow);
+            .Where(ns => ns.Metadata.CreationTimestamp.HasValue
+                         && ns.Metadata.Labels.TryGetValue(costSaver.Spec.NamespaceLabel, out var labelValue)
+                         && !string.IsNullOrWhiteSpace(labelValue)
+                         && TimeSpan.TryParse(labelValue.Replace('-', ':'), out var expirationTime)
+                         && ns.Metadata.CreationTimestamp.Value.Add(expirationTime) < DateTime.UtcNow);
 
-        await Parallel.ForEachAsync(expiredNamespaces, cancellationToken, async (expiredNamespace, _) =>
-        {
-            logger.LogInformation("Deleting expired namespace {NamespaceName} (created at {NamespaceCreated}, {NamespaceLabel} is {LabelValue})", 
-                expiredNamespace.Metadata.Name, expiredNamespace.Metadata.CreationTimestamp!.Value, costSaver.Spec.NamespaceLabel, expiredNamespace.Metadata.Labels[costSaver.Spec.NamespaceLabel]);
-            
-            await kubernetesClient.Delete(expiredNamespace);
-        });
+        await Parallel.ForEachAsync(expiredNamespaces, cancellationToken,
+            async (expiredNamespace, ct) =>
+            {
+                ProcessedNamespaces.Add(GetNamespaceKey(expiredNamespace));
+                await eventManager.PublishExpiredNamespaceEvent(costSaver, expiredNamespace);
+                await mediator.Publish(new ExpiredNamespaceDetectedEvent(expiredNamespace), ct);
+            });
     }
 
     private async Task<IEnumerable<V1Namespace>> GetNamespaces()
@@ -66,6 +74,7 @@ public class WorkerService(IKubernetesClient kubernetesClient, ILogger<WorkerSer
 
         var allowedNamespaces = allNamespaces
             .Where(ns => !ProtectedNamespaces.Contains(ns.Metadata.Name))
+            .Where(ns => !ProcessedNamespaces.Contains(GetNamespaceKey(ns)))
             .ToArray();
 
         return allowedNamespaces;
@@ -74,5 +83,10 @@ public class WorkerService(IKubernetesClient kubernetesClient, ILogger<WorkerSer
     private async Task<IEnumerable<Entities.CostSaver>> GetCostSavers()
     {
         return await kubernetesClient.List<Entities.CostSaver>();
+    }
+
+    private static string GetNamespaceKey(V1Namespace @namespace)
+    {
+        return $"{@namespace.Metadata.Name}:{@namespace.Metadata.CreationTimestamp}";
     }
 }

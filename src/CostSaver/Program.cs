@@ -1,4 +1,5 @@
-using CostSaver.Services;
+using System.Reflection;
+using CostSaver.Infrastructure.Services;
 using KubeOps.Operator;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,8 +17,8 @@ return;
 static void ConfigureServices(IServiceCollection services)
 {
     services.AddKubernetesOperator();
-    
-    services.AddHostedService<WorkerService>();
+    services.AddHostedService<DetectExpiredWorkloadsService>();
+    services.AddMediatR(Assembly.GetExecutingAssembly());
 }
 
 // static void ConfigureLogging(WebApplicationBuilder builder)
