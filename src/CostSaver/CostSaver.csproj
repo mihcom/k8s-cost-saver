@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentValidation"/>
         <PackageReference Include="KubeOps"/>
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection"/>
         <!--      <PackageReference Include="Serilog.AspNetCore"/>-->

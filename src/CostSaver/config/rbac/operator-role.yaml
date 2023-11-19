@@ -13,6 +13,19 @@ rules:
   - list
   - update
 - apiGroups:
+  - ""
+  - admissionregistration.k8s.io
+  resources:
+  - services
+  - validatingwebhookconfigurations
+  - mutatingwebhookconfigurations
+  verbs:
+  - create
+  - get
+  - patch
+  - update
+  - delete
+- apiGroups:
   - coordination.k8s.io
   resources:
   - leases
@@ -25,6 +38,14 @@ rules:
   verbs:
   - get
   - list
+- apiGroups:
+  - ""
+  resources:
+  - services/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - apps
   resources:
