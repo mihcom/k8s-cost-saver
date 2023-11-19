@@ -8,7 +8,7 @@ using KubeOps.Operator.Events;
 namespace CostSaver.Infrastructure.Services;
 
 public class DetectExpiredWorkloadsService(IKubernetesClient kubernetesClient, IEventManager eventManager,
-    IMediator mediator, ILogger<DetectExpiredWorkloadsService> logger) : IHostedService
+    IPublisher mediator, ILogger<DetectExpiredWorkloadsService> logger) : IHostedService
 {
     // Safety net to prevent accidental deletion of important namespaces
     private static readonly HashSet<string> ProtectedNamespaces =
@@ -19,7 +19,11 @@ public class DetectExpiredWorkloadsService(IKubernetesClient kubernetesClient, I
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        #if DEBUG
         var interval = TimeSpan.FromSeconds(10);
+        #else
+        var interval = TimeSpan.FromMinutes(1);
+        #endif
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -50,7 +54,7 @@ public class DetectExpiredWorkloadsService(IKubernetesClient kubernetesClient, I
 
     private async ValueTask CheckCostSaver(Entities.CostSaver costSaver, IEnumerable<V1Namespace> namespaces, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Checking cost saver {CostSaverName}", costSaver.Metadata.Name);
+        logger.CheckingCostSaver(costSaver.Metadata.Name);
 
         var expiredNamespaces = namespaces
             .Where(ns => ns.Metadata.CreationTimestamp.HasValue
@@ -63,8 +67,10 @@ public class DetectExpiredWorkloadsService(IKubernetesClient kubernetesClient, I
             async (expiredNamespace, ct) =>
             {
                 ProcessedNamespaces.Add(GetNamespaceKey(expiredNamespace));
-                await eventManager.PublishExpiredNamespaceEvent(costSaver, expiredNamespace);
-                await mediator.Publish(new ExpiredNamespaceDetectedEvent(expiredNamespace), ct);
+
+                logger.NamespaceExpired(expiredNamespace.Metadata.Name);
+                await eventManager.PublishNamespaceExpiredEvent(costSaver, expiredNamespace);
+                await mediator.Publish(new ExpiredNamespaceDetectedEvent(costSaver, expiredNamespace), ct);
             });
     }
 

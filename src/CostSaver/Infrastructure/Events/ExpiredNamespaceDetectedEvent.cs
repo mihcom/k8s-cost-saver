@@ -2,4 +2,4 @@
 
 namespace CostSaver.Infrastructure.Events;
 
-public record ExpiredNamespaceDetectedEvent(V1Namespace Namespace) : INotification;
+public record ExpiredNamespaceDetectedEvent(Entities.CostSaver CostSaver, V1Namespace Namespace) : INotification;
