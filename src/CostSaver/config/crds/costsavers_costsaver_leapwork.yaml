@@ -26,6 +26,13 @@ spec:
                     name:
                       description: The name of the namespace.
                       type: string
+                    createdAt:
+                      description: The creation timestamp of the namespace.
+                      format: date-time
+                      type: string
+                    lifetime:
+                      description: The lifetime of the namespace.
+                      type: string
                     expiresAt:
                       description: The expiration date of the namespace.
                       format: date-time

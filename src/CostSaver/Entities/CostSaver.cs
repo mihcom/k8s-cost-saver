@@ -28,6 +28,12 @@ public class CostSaverStatus
         [Description("The name of the namespace.")]
         public required string Name { get; init; }
 
+        [Description("The creation timestamp of the namespace.")]
+        public required DateTime CreatedAt { get; init; }
+
+        [Description("The lifetime of the namespace.")]
+        public required string Lifetime { get; init; }
+        
         [Description("The expiration date of the namespace.")]
         public DateTime ExpiresAt { get; init; }
     }
