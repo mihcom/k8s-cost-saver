@@ -1,10 +1,13 @@
 ﻿using k8s.Models;
 using KubeOps.Operator.Entities;
 using KubeOps.Operator.Entities.Annotations;
+using KubeOps.Operator.Rbac;
 
 namespace CostSaver.Entities;
 
 [KubernetesEntity(Group = "costsaver.leapwork", ApiVersion = "v1")]
+[EntityRbac(typeof(V1Namespace), Verbs = RbacVerb.List | RbacVerb.Delete)]
+[EntityRbac(typeof(CostSaver), Verbs = RbacVerb.All)]
 public class CostSaver : CustomKubernetesEntity<CostSaverSpec, CostSaverStatus>
 {
 }

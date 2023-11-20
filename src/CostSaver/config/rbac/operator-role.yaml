@@ -6,6 +6,21 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - namespaces
+  verbs:
+  - list
+  - delete
+- apiGroups:
+  - costsaver.leapwork
+  - coordination.k8s.io
+  resources:
+  - costsavers
+  - leases
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  resources:
   - events
   verbs:
   - create
@@ -26,18 +41,28 @@ rules:
   - update
   - delete
 - apiGroups:
-  - coordination.k8s.io
-  resources:
-  - leases
-  verbs:
-  - '*'
-- apiGroups:
   - apps
   resources:
   - deployments
   verbs:
   - get
   - list
+- apiGroups:
+  - ""
+  resources:
+  - namespaces/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - costsaver.leapwork
+  resources:
+  - costsavers/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - ""
   resources:
