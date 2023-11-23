@@ -24,6 +24,6 @@ public static class EventManagerExtensions
     {
         var message = $"An unhandled error occurred while performing {operation}: {ex.Message} at {ex.StackTrace}";
         
-        await eventManager.PublishAsync(costSaver, "NamespaceDeleted", message);
+        await eventManager.PublishAsync(costSaver, "GenericError", message);
     }
 }

@@ -39,6 +39,7 @@
         <PackageReference Update="Serilog.Settings.Configuration" Version="8.0.0"/>
         <PackageReference Update="Serilog.Sinks.Console" Version="5.0.0"/>
         <PackageReference Update="KubeOps" Version="7.6.1"/>
+        <PackageReference Update="FluentValidation" Version="11.8.0" />
     </ItemGroup>
 
 </Project>

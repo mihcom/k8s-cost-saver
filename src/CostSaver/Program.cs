@@ -17,6 +17,7 @@ return;
 static void ConfigureServices(IServiceCollection services)
 {
     services.AddKubernetesOperator();
+    
     services.AddHostedService<DetectExpiredWorkloadsService>();
     services.AddMediatR(Assembly.GetExecutingAssembly());
 }

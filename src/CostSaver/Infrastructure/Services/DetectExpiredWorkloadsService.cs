@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using CostSaver.Entities;
 using CostSaver.Extensions;
 using CostSaver.Infrastructure.Events;
 using k8s.Models;
@@ -56,12 +57,32 @@ public class DetectExpiredWorkloadsService(IKubernetesClient kubernetesClient, I
     {
         logger.CheckingCostSaver(costSaver.Metadata.Name);
 
-        var expiredNamespaces = namespaces
-            .Where(ns => ns.Metadata.CreationTimestamp.HasValue
-                         && ns.Metadata.Labels.TryGetValue(costSaver.Spec.NamespaceLabel, out var labelValue)
-                         && !string.IsNullOrWhiteSpace(labelValue)
-                         && TimeSpan.TryParse(labelValue.Replace('-', ':'), out var expirationTime)
-                         && ns.Metadata.CreationTimestamp.Value.Add(expirationTime) < DateTime.UtcNow);
+        var trackedNamespaces = namespaces
+            .Where(ns => ns.Metadata.CreationTimestamp.HasValue)
+            .Select(ns => new
+                { Namespace = ns, LabelValue = ns.Metadata.Labels.TryGetValue(costSaver.Spec.NamespaceLabel, out var labelValue) ? labelValue : null })
+            .Where(x => !string.IsNullOrWhiteSpace(x.LabelValue))
+            .Select(x => new
+            {
+                x.Namespace, Lifetime = TimeSpan.TryParse(x.LabelValue!.Replace('-', ':'), out var lifetime) ? lifetime : TimeSpan.Zero
+            })
+            .Where(x => x.Lifetime > TimeSpan.Zero)
+            .ToArray();
+
+        costSaver.Status.TrackedNamespaces = trackedNamespaces
+            .Select(x => new CostSaverStatus.ExpiringNamespace
+            {
+                Name = x.Namespace.Metadata.Name, 
+                CreatedAt = x.Namespace.Metadata.CreationTimestamp!.Value,
+                Lifetime = x.Lifetime.ToString(),
+                ExpiresAt = x.Namespace.Metadata.CreationTimestamp!.Value.Add(x.Lifetime)
+            });
+
+        await kubernetesClient.UpdateStatus(costSaver);
+        
+        var expiredNamespaces = trackedNamespaces
+                .Where(x => x.Namespace.Metadata.CreationTimestamp!.Value.Add(x.Lifetime) < DateTime.UtcNow)
+                .Select(x => x.Namespace);
 
         await Parallel.ForEachAsync(expiredNamespaces, cancellationToken,
             async (expiredNamespace, ct) =>

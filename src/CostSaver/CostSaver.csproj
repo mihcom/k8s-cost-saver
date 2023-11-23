@@ -4,17 +4,10 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <InvariantGlobalization>true</InvariantGlobalization>
-        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="..\.dockerignore">
-            <Link>.dockerignore</Link>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup>
+        <PackageReference Include="FluentValidation"/>
         <PackageReference Include="KubeOps"/>
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection"/>
         <!--      <PackageReference Include="Serilog.AspNetCore"/>-->
