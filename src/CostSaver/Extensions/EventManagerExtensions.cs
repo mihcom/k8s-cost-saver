@@ -3,7 +3,7 @@ using KubeOps.Operator.Events;
 
 namespace CostSaver.Extensions;
 
-public static class EventManagerExtensions
+internal static class EventManagerExtensions
 {
     public static async Task PublishNamespaceExpiredEvent(this IEventManager eventManager, Entities.CostSaver costSaver, V1Namespace @namespace)
     {

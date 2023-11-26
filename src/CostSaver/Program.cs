@@ -1,11 +1,13 @@
+using System.Runtime.CompilerServices;
 using System.Reflection;
 using CostSaver.Infrastructure.Services;
 using KubeOps.Operator;
 
+[assembly:InternalsVisibleTo("CostSaver.UnitTests")]
+
 var builder = WebApplication.CreateBuilder(args);
 
 ConfigureServices(builder.Services);
-// ConfigureLogging(builder);
 
 var app = builder.Build();
 app.UseKubernetesOperator();
@@ -21,12 +23,3 @@ static void ConfigureServices(IServiceCollection services)
     services.AddHostedService<DetectExpiredWorkloadsService>();
     services.AddMediatR(Assembly.GetExecutingAssembly());
 }
-
-// static void ConfigureLogging(WebApplicationBuilder builder)
-// {
-//     builder.Host.UseSerilog();
-//     
-//     Log.Logger = new LoggerConfiguration()
-//         .ReadFrom.Configuration(builder.Configuration)
-//         .CreateLogger();
-// }

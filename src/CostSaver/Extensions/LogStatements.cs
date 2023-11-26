@@ -33,5 +33,4 @@ public static partial class LogStatements
         Message = "An unhandled error occurred while performing {Operation}"
     )]
     public static partial void GenericError(this ILogger logger, string operation, Exception exception);
-    
 }

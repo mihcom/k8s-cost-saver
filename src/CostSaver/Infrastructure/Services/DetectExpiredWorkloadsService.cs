@@ -12,7 +12,7 @@ public class DetectExpiredWorkloadsService(IKubernetesClient kubernetesClient, I
     IPublisher mediator, ILogger<DetectExpiredWorkloadsService> logger) : IHostedService
 {
     // Safety net to prevent accidental deletion of important namespaces
-    private static readonly HashSet<string> ProtectedNamespaces =
+    internal static readonly HashSet<string> ProtectedNamespaces =
         new() { "default", "ingress-nginx", "kube-node-lease", "kube-public", "kube-system", "logging" };
 
     // Keep track of processed namespaces to prevent duplicate events
@@ -95,7 +95,7 @@ public class DetectExpiredWorkloadsService(IKubernetesClient kubernetesClient, I
             });
     }
 
-    private async Task<IEnumerable<V1Namespace>> GetNamespaces()
+    internal async Task<IEnumerable<V1Namespace>> GetNamespaces()
     {
         var allNamespaces = await kubernetesClient.List<V1Namespace>();
 
